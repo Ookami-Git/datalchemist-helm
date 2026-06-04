@@ -35,6 +35,7 @@ ingress:
   tls:
     enabled: false
     secretName: "datalchemist-tls"
+    selfSigned: false
   annotations: {}
 
 resources: {}
