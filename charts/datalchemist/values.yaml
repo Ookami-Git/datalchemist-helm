@@ -1,0 +1,48 @@
+replicaCount: 1
+
+image:
+  repository: ookamidock/datalchemist
+  pullPolicy: IfNotPresent
+  # Par défaut, on utilise appVersion du Chart.yaml
+  tag: ""
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+datalchemist:
+  databaseFileName: "datalchemist.sqlite"
+  sessionDuration: "36000"
+
+persistence:
+  enabled: true
+  size: 1Gi
+  mountPath: /sqlite
+  # Laisser vide = utiliser la storageClass par défaut du cluster
+  # Mettre "longhorn", "standard", etc. selon l'environnement
+  storageClassName: ""
+  accessMode: ReadWriteOnce
+
+ingress:
+  enabled: false
+  className: "traefik"
+  host: ""
+  # Le secret TLS DOIT être créé manuellement ou via cert-manager
+  tls:
+    enabled: false
+    secretName: "datalchemist-tls"
+  annotations: {}
+
+resources: {}
+
+podAnnotations: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

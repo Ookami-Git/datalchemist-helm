@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "datalchemist.fullname" . }}
+  labels:
+    {{- include "datalchemist.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "datalchemist.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "datalchemist.selectorLabels" . | nindent 8 }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ include "datalchemist.imageTag" . }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+          env:
+            - name: DA_LISTEN
+              value: {{ printf "0.0.0.0:%d" (int .Values.service.internalPort) | quote }}
+            - name: DA_DATABASE
+              value: {{ printf "%s/%s" (trimSuffix "/" .Values.persistence.mountPath) (trimPrefix "/" .Values.datalchemist.databaseFileName) | quote }}
+            - name: DA_SESSION
+              value: {{ .Values.datalchemist.sessionDuration | quote }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            - name: sqlite-data
+              mountPath: {{ .Values.persistence.mountPath }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- if .Values.persistence.enabled }}
+      volumes:
+        - name: sqlite-data
+          persistentVolumeClaim:
+            claimName: {{ include "datalchemist.fullname" . }}-sqlite
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

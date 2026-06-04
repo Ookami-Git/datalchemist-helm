@@ -1,0 +1,28 @@
+{
+  "name": "Go & Helm",
+  "build": { "dockerfile": "Dockerfile" },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go",
+        "redhat.vscode-yaml",
+        "wholroyd.hcl",
+        "asannikov.jonathan" 
+      ],
+      "settings": {
+        "files.associations": {
+          "*.yaml.gotmpl": "yaml",
+          "**/templates/*.yaml": "helm",
+          "**/templates/*.tpl": "helm",
+          "values.yaml": "yaml"
+        }
+      }
+    }
+  },
+
+  "postCreateCommand": [
+    "sh", "-c",
+    "helm plugin install https://github.com/databus23/helm-diff && echo '✅ Prêt'"
+  ]
+}
