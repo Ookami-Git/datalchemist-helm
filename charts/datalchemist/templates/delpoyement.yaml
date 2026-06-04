@@ -28,7 +28,7 @@ spec:
               protocol: TCP
           env:
             - name: DA_LISTEN
-              value: "0.0.0.0:{{ .Values.service.internalPort }}"
+              value: "0.0.0.0:{{ .Values.service.targetPort }}"
             - name: DA_DATABASE
               value: {{ printf "%s/%s" (trimSuffix "/" .Values.persistence.mountPath) (trimPrefix "/" .Values.datalchemist.databaseFileName) | quote }}
             - name: DA_SESSION
