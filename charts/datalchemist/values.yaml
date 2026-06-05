@@ -35,10 +35,17 @@ ingress:
   tls:
     enabled: false
     secretName: "datalchemist-tls"
+    # Si selfSigned est à true, on génère un certificat TLS auto-signé
     selfSigned: false
   annotations: {}
 
-resources: {}
+resources:
+  limits:
+    cpu: 100m
+    memory: 256Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
 
 podAnnotations: {}
 
