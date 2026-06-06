@@ -1,56 +1,82 @@
+# Number of replica pods to run
 replicaCount: 1
 
 image:
+  # Docker image repository
   repository: ookamidock/datalchemist
+  # Image pull policy (Always, IfNotPresent, Never)
   pullPolicy: IfNotPresent
-  # Par défaut, on utilise appVersion du Chart.yaml
+  # Image tag. Defaults to the appVersion in Chart.yaml if left empty.
   tag: ""
 
+# Override the name of the chart
 nameOverride: ""
+# Override the full name of the resources
 fullnameOverride: ""
 
 service:
+  # Kubernetes Service type (ClusterIP, NodePort, LoadBalancer)
   type: ClusterIP
+  # Port exposed by the Service
   port: 80
+  # Target port on the container
   targetPort: 8080
 
 datalchemist:
+  # File name of the SQLite database
   databaseFileName: "datalchemist.sqlite"
+  # User session duration in seconds
   sessionDuration: "36000"
 
 persistence:
+  # Enable persistent volume for data persistence (e.g., SQLite file)
   enabled: true
+  # Size of the persistent volume
   size: 1Gi
+  # Path inside the container where the volume is mounted
   mountPath: /sqlite
-  # Laisser vide = utiliser la storageClass par défaut du cluster
-  # Mettre "longhorn", "standard", etc. selon l'environnement
+  # Name of the StorageClass. Leave empty to use the cluster's default storageClass
+  # (e.g., "longhorn", "standard", etc. depending on your environment)
   storageClassName: ""
+  # Volume access mode (e.g., ReadWriteOnce, ReadWriteMany)
   accessMode: ReadWriteOnce
 
 ingress:
+  # Enable Ingress resource
   enabled: false
+  # Ingress class name (e.g., "traefik", "nginx")
   className: "traefik"
+  # Hostname for the Ingress rule
   host: ""
-  # Le secret TLS DOIT être créé manuellement ou via cert-manager
   tls:
+    # Enable TLS for the Ingress
     enabled: false
+    # Name of the secret containing the TLS certificate and private key.
+    # Note: The TLS secret MUST be created manually or via cert-manager
     secretName: "datalchemist-tls"
-    # Si selfSigned est à true, on génère un certificat TLS auto-signé
+    # If selfSigned is set to true, a self-signed TLS certificate is automatically generated
     selfSigned: false
+  # Additional annotations for the Ingress resource
   annotations: {}
 
 resources:
+  # Maximum resource limits allowed for the container
   limits:
     cpu: 500m
     memory: 256Mi
+  # Minimum resources requested for the container
   requests:
     cpu: 100m
     memory: 128Mi
 
+# Custom annotations to add to the pod template
 podAnnotations: {}
 
+# Node labels for pod assignment
 nodeSelector: {}
 
+# Tolerations for pod scheduling on tainted nodes
 tolerations: []
 
+# Affinity and anti-affinity rules for pod scheduling
 affinity: {}
